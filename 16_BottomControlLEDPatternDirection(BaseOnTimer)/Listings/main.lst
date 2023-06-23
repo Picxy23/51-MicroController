@@ -1,0 +1,72 @@
+C51 COMPILER V9.54   MAIN                                                                  06/23/2023 23:52:18 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.l
+                    -st) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Timer0.h"
+   3          #include "Key.h"
+   4          #include <INTRINS.H>
+   5          
+   6          unsigned char KeyNumber, LEDMod;
+   7          
+   8          void main()
+   9          {
+  10   1              P2 = 0xFE;
+  11   1              Timer0Init();
+  12   1              while(1)
+  13   1              {
+  14   2                      KeyNumber  = Key();
+  15   2                      if (KeyNumber)
+  16   2                      {
+  17   3                              if (KeyNumber == 1) // Mode can be 0 or 1
+  18   3                              {
+  19   4                                      LEDMod ++;
+  20   4                                      if (LEDMod >= 2)
+  21   4                                              LEDMod = 0;
+  22   4                              }
+  23   3                              // Go to interrupt code
+  24   3                      }
+  25   2              }
+  26   1      }
+  27          
+  28          
+  29          
+  30          // When overflow flagged, jump to this
+  31          // When finished here, jump back
+  32          void Timer0_Routine(void) interrupt 1
+  33          {
+  34   1              static unsigned int T0Count; // Static is not destroyed
+  35   1              // Fix the initialization back
+  36   1              TL0 = 0x66;             //Initial timer value
+  37   1              TH0 = 0xFC;             //Initial timer value
+  38   1              
+  39   1              T0Count ++;
+  40   1              if (T0Count >= 500) // 0.5s
+  41   1              {
+  42   2                      T0Count = 0;
+  43   2                      if (LEDMod == 0){P2 = _crol_(P2, 1);}
+  44   2                      if (LEDMod == 1){P2 = _cror_(P2, 1);}
+  45   2              }
+  46   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    116    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+C51 COMPILER V9.54   MAIN                                                                  06/23/2023 23:52:18 PAGE 2   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
