@@ -1,0 +1,85 @@
+C51 COMPILER V9.54   UART                                                                  07/12/2023 15:00:56 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\Objects\UART.obj
+COMPILER INVOKED BY: C:\Keil5\C51\BIN\C51.EXE UART.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\UART.l
+                    -st) OBJECT(.\Objects\UART.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          
+   3          /**
+   4           * @brief COM Initialization
+   5           * @param None
+   6           * @retval None
+   7           */
+   8          void UART_Init()
+   9          {
+  10   1              // Serical Control
+  11   1              SCON = 0x50; //// Emable recieve
+  12   1              // Power
+  13   1              PCON |= 0x80; // Double B rate(For acdcuracy)
+  14   1              
+  15   1              // Timer 1
+  16   1              // Set up TMOD
+  17   1              TMOD = TMOD&0x0F; 
+  18   1              TMOD = TMOD|0X20;  // 8 bit auto reload
+  19   1              
+  20   1              TR1 = 1;
+  21   1              TL1 = 0xF4;             //Initial timer value
+  22   1              TH1 = 0xF4;             //Set reload value
+  23   1              
+  24   1              // Interupt
+  25   1              ET1 = 0;
+  26   1              
+  27   1              //// Turn Interrupt on
+  28   1              EA = 1;
+  29   1              ES = 1;
+  30   1      }
+  31          
+  32          
+  33          /**
+  34           * @brief Send Byte to Computer Side
+  35           * @param Byte to be send
+  36           * @retval None
+  37           */
+  38          void UART_SendByte(unsigned char Byte)
+  39          {
+  40   1              SBUF = Byte; // Put suff into buffer
+  41   1              while (TI == 0){} // Wait for flag
+  42   1              TI = 0; // Reset TI
+  43   1      }
+  44          
+  45          // Use interrupt and retain data
+  46          /**
+  47           * @brief Recieve Byte from Computer Side
+  48           * @param None
+  49           * @retval None
+  50           */
+  51          void UART_Routine() interrupt 4
+  52          {
+  53   1              if(RI == 1)
+  54   1              {
+C51 COMPILER V9.54   UART                                                                  07/12/2023 15:00:56 PAGE 2   
+
+  55   2                      P2 = ~SBUF;
+  56   2                      UART_SendByte(SBUF);
+  57   2                      RI = 0; // reset RI 
+  58   2              }
+  59   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     66    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
