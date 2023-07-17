@@ -1,0 +1,147 @@
+C51 COMPILER V9.54   MAIN                                                                  07/17/2023 21:28:10 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Delay.h"
+   3          #include "Timer0.h"
+   4          
+   5          sbit Buzzer = P2^5;
+   6          
+   7          #define SPEED 250
+   8          
+   9          #define P               0
+  10          #define L1              1
+  11          #define L1_             2
+  12          #define L2              3
+  13          #define L2_             4
+  14          #define L3              5
+  15          #define L4              6
+  16          #define L4_             7
+  17          #define L5              8
+  18          #define L5_             9
+  19          #define L6              10
+  20          #define L6_             11
+  21          #define L7              12
+  22          
+  23          #define M1              13
+  24          #define M1_             14
+  25          #define M2              15
+  26          #define M2_             16
+  27          #define M3              17
+  28          #define M4              18
+  29          #define M4_             19
+  30          #define M5              20
+  31          #define M5_             21
+  32          #define M6              22
+  33          #define M6_             23
+  34          #define M7              24
+  35          
+  36          #define H1              25
+  37          #define H1_             26
+  38          #define H2              27
+  39          #define H2_             28
+  40          #define H3              29
+  41          #define H4              30
+  42          #define H4_             31
+  43          #define H5              32
+  44          #define H5_             33
+  45          #define H6              34
+  46          #define H6_             35
+  47          #define H7              36
+  48          
+  49          
+  50          unsigned int FreqTable[] = {
+  51                  0, //Stop playing
+  52                  63628, 63731, 63835, 63928, 64021, 64103, 64185, 64260, 64331, 64400, 64463, 64528,
+  53                  64580, 64633, 64684, 64732, 64777, 64820, 64860, 64898, 64934, 64968, 65000, 65030,
+  54                  65058, 65085, 65110, 65134, 65157, 65178, 65198, 65217, 65235, 65252, 65268, 65283
+C51 COMPILER V9.54   MAIN                                                                  07/17/2023 21:28:10 PAGE 2   
+
+  55          };
+  56          
+  57          unsigned char code Music[] = { // Set smallest duration in music as 1, code store in flash
+  58                  P,  4,
+  59                  P,  4,
+  60                  P,  4,
+  61                  M6, 2,
+  62                  M7, 2,
+  63                  H1, 4 + 2,
+  64                  M7, 2,
+  65                  H1, 4,
+  66                  H3, 4,
+  67                  M7, 4 + 4 + 4,
+  68                  
+  69                  M3, 2,
+  70                  M3, 2,
+  71                  M6, 4 + 2,
+  72                  M5, 2,
+  73                  M6, 4,
+  74                  H1, 4,
+  75                  M5, 4,
+  76                  
+  77                  
+  78                  0xFF
+  79          };
+  80          
+  81          
+  82          unsigned char FreqSelect, MusicSelect;
+  83          
+  84          void main()
+  85          {
+  86   1              Timer0Init();
+  87   1              while(1)
+  88   1              {
+  89   2                      if (Music[MusicSelect] != 0xFF) // Only play when not end
+  90   2                      {
+  91   3                              FreqSelect = Music[MusicSelect]; // Note
+  92   3                              MusicSelect ++;
+  93   3                              Delay(SPEED / 4 * Music[MusicSelect]); // Duration
+  94   3                              MusicSelect ++;
+  95   3                              
+  96   3                              // Stop the time rto allow pause between notes
+  97   3                              TR0 = 0;
+  98   3                              Delay(5);
+  99   3                              TR0 = 1;
+ 100   3                      }
+ 101   2                      else
+ 102   2                      {
+ 103   3                              TR0 = 0; // Stop timer/sound
+ 104   3                              while(1);
+ 105   3                      }
+ 106   2      
+ 107   2              }
+ 108   1      }
+ 109          
+ 110          // Enter every 1ms
+ 111          void Timer0_Routine(void) interrupt 1
+ 112          {
+ 113   1              if (FreqTable[FreqSelect]) // Only buzz when input is not rest note
+ 114   1              {
+ 115   2                      TL0 = FreqTable[FreqSelect] % 256;              //Initial timer value (Change this to adjust Hz/High Low of sound))
+ 116   2                      TH0 = FreqTable[FreqSelect] / 256;
+C51 COMPILER V9.54   MAIN                                                                  07/17/2023 21:28:10 PAGE 3   
+
+ 117   2                      Buzzer = !Buzzer; // 1ms, 500Hz
+ 118   2              }
+ 119   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    101    ----
+   CONSTANT SIZE    =     35    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     76    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
