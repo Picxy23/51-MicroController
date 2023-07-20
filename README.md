@@ -9,4 +9,3 @@ MicroController: STC89C52RC (Based on Intel 8051 microcontroller)
 - Change ``Jumper (cap)`` for Matrix LED
 
 Credit: Jiangsu University of Science and Technology
-https://space.bilibili.com/383400717
