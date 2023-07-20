@@ -1,0 +1,84 @@
+C51 COMPILER V9.54   TIMER0                                                                07/20/2023 16:55:52 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE TIMER0
+OBJECT MODULE PLACED IN .\Objects\Timer0.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Timer0.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\Ti
+                    -mer0.lst) OBJECT(.\Objects\Timer0.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          
+   3          /**
+   4           * @brief Initialization of Timer 0, 1ms
+   5           * @param None
+   6           * @retval None
+   7           */
+   8          void Timer0_Init()
+   9          {
+  10   1              // Set up TMOD
+  11   1              // x,x,x,x;  Gate, C/T, M1, M0
+  12   1              // 0,0,0,0;  0,  , 0  , 0 , 1 
+  13   1              // 0000 0001
+  14   1                      //TMOD = 0x01;
+  15   1              TMOD = TMOD&0xF0; // Clear the low 4-bit of T Mode, high 4 stay same
+  16   1              TMOD = TMOD|0X01; // Change low 4 to 0001
+  17   1              
+  18   1              // Set up TCON (Can be done by bit)
+  19   1              TF0 = 0; // Clear the overflow flag
+  20   1              TR0 = 1; // Allow the counter to work
+  21   1              // No need to set up IE0 and IT0 because OR gate
+  22   1              
+  23   1              // Pulse Counter, how long to 1s
+  24   1              // Counter allow 0 ~ 65535
+  25   1              // Every 1us count +1
+  26   1              // Max time can count is 65535us
+  27   1              // Initialy we set counter 64535 => 1000us = 1ms
+  28   1              // So
+  29   1              
+  30   1              TL0 = 0x66;             //Initial timer value
+  31   1              TH0 = 0xFC;             //Initial timer value
+  32   1              
+  33   1              // Interupt
+  34   1              ET0 = 1;
+  35   1              EA = 1;
+  36   1              PT0 = 0;
+  37   1      }
+  38          
+  39          
+  40          // Template for 1s
+  41          /*
+  42          // When overflow flagged, jump to this
+  43          // When finished here, jump back
+  44          void Timer0_Routine(void) interrupt 1
+  45          {
+  46                  static unsigned int T0Count; // Static is not destroyed
+  47                  // Fix the initialization back
+  48                  TL0 = 0x66;             //Initial timer value
+  49                  TH0 = 0xFC;             //Initial timer value
+  50                  
+  51                  T0Count ++;
+  52                  if (T0Count >= 1000) // 1s
+  53                  {
+  54                          T0Count = 0;
+C51 COMPILER V9.54   TIMER0                                                                07/20/2023 16:55:52 PAGE 2   
+
+  55                          // Do Something
+  56                  }
+  57          }
+  58          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     23    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

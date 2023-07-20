@@ -1,0 +1,145 @@
+C51 COMPILER V9.54   MAIN                                                                  07/20/2023 20:58:06 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Timer0.h"
+   3          #include "Key.h"
+   4          #include "Nixie.h"
+   5          #include "Delay.h"
+   6          #include "AT24C02.h"
+   7          
+   8          unsigned char KeyNum;
+   9          unsigned char Min, Sec, MiniSec;
+  10          unsigned char RunFlag;
+  11          
+  12          void main()
+  13          {
+  14   1              Timer0_Init();
+  15   1              while(1)
+  16   1              {
+  17   2                      // Get key              
+  18   2                      KeyNum = Key();
+  19   2                      // Start/stop
+  20   2                      if (KeyNum == 1)
+  21   2                      {RunFlag = !RunFlag;}
+  22   2                      // Reset
+  23   2                      if (KeyNum == 2)
+  24   2                      {
+  25   3                              Min = 0;
+  26   3                              Sec = 0;
+  27   3                              MiniSec = 0;
+  28   3                      }
+  29   2                      // Save to AT24C02
+  30   2                      if (KeyNum == 3)
+  31   2                      {
+  32   3                              AT24C02_WriteByte(0, Min);
+  33   3                              Delay(5);
+  34   3                              AT24C02_WriteByte(1, Sec);
+  35   3                              Delay(5);
+  36   3                              AT24C02_WriteByte(2, MiniSec);
+  37   3                              Delay(5);
+  38   3                      }
+  39   2                      // Read From AT24C02
+  40   2                      if (KeyNum == 4)
+  41   2                      {
+  42   3                              Min = AT24C02_ReadByte(0);
+  43   3                              Sec = AT24C02_ReadByte(1);
+  44   3                              MiniSec = AT24C02_ReadByte(2);
+  45   3                      }
+  46   2                      
+  47   2                      Nixie_SetBuf(1, Min/10);
+  48   2                      Nixie_SetBuf(2, Min%10);
+  49   2                      Nixie_SetBuf(3, 17);
+  50   2                      
+  51   2                      Nixie_SetBuf(4, Sec/10);
+  52   2                      Nixie_SetBuf(5, Sec%10);
+  53   2                      Nixie_SetBuf(6, 17);
+  54   2                      
+C51 COMPILER V9.54   MAIN                                                                  07/20/2023 20:58:06 PAGE 2   
+
+  55   2                      Nixie_SetBuf(7, MiniSec/10);
+  56   2                      Nixie_SetBuf(8, MiniSec%10);
+  57   2              }
+  58   1      }
+  59          
+  60          void Sec_Loop()
+  61          {
+  62   1              if (RunFlag)
+  63   1              {
+  64   2                      MiniSec ++;
+  65   2                      if (MiniSec >= 100)
+  66   2                      {
+  67   3                              MiniSec = 0;
+  68   3                              Sec ++;
+  69   3                              if (Sec >= 60)
+  70   3                              {
+  71   4                                      Sec = 0;
+  72   4                                      Min ++;
+  73   4                              }
+  74   3                              if (Min >= 60)
+  75   3                              {
+  76   4                                      Min = 0;
+  77   4                              }
+  78   3                      }
+  79   2              }
+  80   1      }
+  81          
+  82          
+  83          // When overflow flagged, jump to this
+  84          // When finished here, jump back
+  85          void Timer0_Routine(void) interrupt 1
+  86          {
+  87   1              static unsigned int T0Count1, T0Count2, T0Count3; // Static is not destroyed
+  88   1              // Fix the initialization back
+  89   1              TL0 = 0x66;             //Initial timer value
+  90   1              TH0 = 0xFC;             //Initial timer value
+  91   1              
+  92   1              // For Key
+  93   1              T0Count1 ++;
+  94   1              if (T0Count1 >= 20) // 20ms per
+  95   1              {
+  96   2                      T0Count1 = 0;
+  97   2                      Key_Loop();
+  98   2              }
+  99   1              
+ 100   1              // For Nixie
+ 101   1              T0Count2 ++;
+ 102   1              if (T0Count2 >= 2) // 2ms per
+ 103   1              {
+ 104   2                      T0Count2 = 0;
+ 105   2                      Nixie_Loop();
+ 106   2              }
+ 107   1              
+ 108   1              // For MiniSec
+ 109   1              T0Count3 ++;
+ 110   1              if (T0Count3 >= 10) // 10ms per
+ 111   1              {
+ 112   2                      T0Count3 = 0;
+ 113   2                      Sec_Loop();
+ 114   2              }
+ 115   1              
+ 116   1              
+C51 COMPILER V9.54   MAIN                                                                  07/20/2023 20:58:06 PAGE 3   
+
+ 117   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    392    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     11    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

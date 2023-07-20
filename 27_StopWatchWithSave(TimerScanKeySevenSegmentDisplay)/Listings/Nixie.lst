@@ -1,0 +1,66 @@
+C51 COMPILER V9.54   NIXIE                                                                 07/20/2023 20:45:43 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE NIXIE
+OBJECT MODULE PLACED IN .\Objects\Nixie.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Nixie.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\Nix
+                    -ie.lst) OBJECT(.\Objects\Nixie.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Delay.h"
+   3          
+   4          unsigned char NixieTable[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x77, 0x7c,0x39,
+             - 0x5E, 0x79, 0x71, 0x00, 0x40};
+   5          
+   6          // Skip [0], match later code, show nothing
+   7          unsigned char Nixie_Buf[9] = {0, 16, 16, 16, 16, 16, 16, 16, 16}; // All 0
+   8          
+   9          
+  10          void Nixie_SetBuf(unsigned char Location, unsigned char Number)
+  11          {
+  12   1              Nixie_Buf[Location] = Number;
+  13   1      }
+  14          
+  15          void Nixie_Scan(unsigned char Location, unsigned char Number)
+  16          {
+  17   1              P0 = 0x00; // Clear P0 register
+  18   1              switch(Location)
+  19   1              {
+  20   2                      case 1: P2_4 = 1; P2_3 = 1; P2_2 = 1; break;
+  21   2                      case 2: P2_4 = 1; P2_3 = 1; P2_2 = 0; break;
+  22   2                      case 3: P2_4 = 1; P2_3 = 0; P2_2 = 1; break;
+  23   2                      case 4: P2_4 = 1; P2_3 = 0; P2_2 = 0; break;
+  24   2                      case 5: P2_4 = 0; P2_3 = 1; P2_2 = 1; break;
+  25   2                      case 6: P2_4 = 0; P2_3 = 1; P2_2 = 0; break;
+  26   2                      case 7: P2_4 = 0; P2_3 = 0; P2_2 = 1; break;
+  27   2                      case 8: P2_4 = 0; P2_3 = 0; P2_2 = 0; break;            
+  28   2              }
+  29   1              P0 = NixieTable[Number];
+  30   1              // Since we call this every 2ms in timer interrupt
+  31   1              // This would act like as a 2ms delay here
+  32   1      }
+  33          
+  34          void Nixie_Loop()
+  35          {
+  36   1              // Loop from 1st to 8th display. with 2ms delay 
+  37   1              static unsigned char i = 1;
+  38   1              Nixie_Scan(i, Nixie_Buf[i]); // Turn on Nixie
+  39   1              i ++;
+  40   1              if (i >= 9){i = 1;} 
+  41   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    134    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     28    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
