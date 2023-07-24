@@ -1,0 +1,73 @@
+C51 COMPILER V9.54   MAIN                                                                  07/25/2023 00:32:26 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Key.h"
+   3          #include "Delay.h"
+   4          #include "Timer0.h"
+   5          #include "Nixie.h"
+   6          
+   7          sbit Motor = P1^0;
+   8          
+   9          unsigned char KeyNum, Speed;
+  10          
+  11          unsigned char Counter, Compare;
+  12          
+  13          void main()
+  14          {
+  15   1              Timer0_Init();
+  16   1              Compare = 5;
+  17   1              while(1)
+  18   1              {
+  19   2                      KeyNum = Key();
+  20   2                      if (KeyNum == 1)
+  21   2                      {
+  22   3                              Speed ++;
+  23   3                              Speed %= 4;
+  24   3                              if (Speed == 0) Compare = 0;
+  25   3                              if (Speed == 1) Compare = 50;
+  26   3                              if (Speed == 2) Compare = 75;
+  27   3                              if (Speed == 3) Compare = 100;
+  28   3                      }
+  29   2                      Nixie(1, Speed);                        
+  30   2              }
+  31   1      }
+  32          
+  33          void Timer0_Routine(void) interrupt 1 // Emter every 100us
+  34          {
+  35   1              TL0 = 0x9C;             //Initial timer value
+  36   1              TH0 = 0xFF;             //Initial timer value
+  37   1              
+  38   1              Counter ++;
+  39   1              Counter %= 100; // Clear when arrving at 100, 0 ~ 99
+  40   1              
+  41   1              // Compare with Control to perform ON OFF 
+  42   1              if (Counter < Compare) // Counter bigger ON for longer?
+  43   1                      Motor = 1;
+  44   1              else
+  45   1                      Motor = 0;
+  46   1      
+  47   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    107    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.54   MAIN                                                                  07/25/2023 00:32:26 PAGE 2   
+
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
