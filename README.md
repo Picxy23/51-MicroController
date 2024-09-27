@@ -2,6 +2,11 @@
 
 This repository contains various projects and exercises developed using the **STC89C52RC microcontroller** (based on the Intel 8051 architecture). The focus is on using **Modular Programming in C** to control various hardware components such as LEDs, seven-segment displays, switches, buzzers, and more. 
 
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/833acd6d-df5d-428b-8266-76efa64f5af3" alt="image">
+</div>
+
+
 ## Microcontroller Specifications
 
 - **Microcontroller**: STC89C52RC
